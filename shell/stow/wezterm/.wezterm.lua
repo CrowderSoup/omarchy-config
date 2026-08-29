@@ -6,7 +6,9 @@ local act = wezterm.action
 -- this color scheme stays static until it's changed here by hand.
 
 return {
-	window_decorations = "RESIZE",
+	-- Hyprland handles move (SUPER + drag) and resize (SUPER + right-drag)
+	-- itself, so there's no need for wezterm's own drag/resize edge.
+	window_decorations = "NONE",
 	hide_tab_bar_if_only_one_tab = true,
 	default_cwd = wezterm.home_dir,
 	font = wezterm.font("JetBrainsMono Nerd Font"),
