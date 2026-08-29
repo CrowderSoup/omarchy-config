@@ -7,6 +7,12 @@ on a box that has Omarchy installed (`command -v omarchy`).
 - `stow/hypr/.config/hypr/bindings.lua` — adds SUPER+SHIFT+CTRL+arrow to move
   the focused window to an adjacent monitor.
 - `stow/hypr/.config/hypr/input.lua` — natural (inverted) scrolling.
+- `stow/xdg-terminal/.config/xdg-terminals.list` — makes WezTerm the default
+  for `xdg-terminal-exec`, so SUPER+RETURN and anything else that shells out
+  to `$TERMINAL` opens WezTerm instead of whatever Omarchy shipped. Not
+  managed by `omarchy default terminal` (that command only knows about
+  alacritty/foot/ghostty/kitty) — this repo just writes the file it would
+  have written.
 
 These are Omarchy's user-override slots (see `omarchy menu keybindings
 --print` and `/usr/share/omarchy/default/hypr/*.lua` for the full commented

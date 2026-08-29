@@ -46,9 +46,10 @@ back to macOS) without dragging Hyprland config with it.
 │       ├── git/            # delta integration (opt-in via git config include.path)
 │       ├── starship/       # Prompt config
 │       └── wezterm/        # Terminal config (static Tokyo Night, see note below)
-└── omarchy/              # Omarchy-only: Hyprland overrides
+└── omarchy/              # Omarchy-only: Hyprland overrides + default terminal
     └── stow/
-        └── hypr/           # bindings.lua, input.lua overrides
+        ├── hypr/           # bindings.lua, input.lua overrides
+        └── xdg-terminal/   # xdg-terminals.list -> WezTerm
 ```
 
 ## What's here vs. what Omarchy already gives you
@@ -71,8 +72,9 @@ missing on top of that:
   automatically but has no WezTerm template, so this terminal's colors won't
   follow along if you switch Omarchy themes.
 - **Hyprland** — a couple of small personal overrides (move-window-to-monitor
-  bindings, natural scrolling). See `omarchy/README.md` for what was
-  deliberately left out (monitor layout, app-specific autostarts, bar
+  bindings, natural scrolling) and setting WezTerm as the default terminal
+  for SUPER+RETURN / `xdg-terminal-exec`. See `omarchy/README.md` for what
+  was deliberately left out (monitor layout, app-specific autostarts, bar
   tweaks) because it's too machine-specific to be worth templating.
 
 Runtime versions (`mise use --global ...`) aren't managed by this repo on
