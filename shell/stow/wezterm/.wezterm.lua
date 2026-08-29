@@ -12,7 +12,7 @@ return {
 	hide_tab_bar_if_only_one_tab = true,
 	default_cwd = wezterm.home_dir,
 	font = wezterm.font("JetBrainsMono Nerd Font"),
-	font_size = 13,
+	font_size = 10,
 	color_scheme = "Tokyo Night",
 	keys = {
 		{
