@@ -85,6 +85,24 @@ purpose — that's live, per-machine state, not really a "dotfile."
   `omarchy` CLI is present). The `shell/stow/` files themselves are plain
   dotfiles and can be stowed by hand on any Linux/macOS box.
 
+## A note on Stow vs. Omarchy
+
+Stow works by symlinking, which means anything that writes directly to a
+stowed path writes straight through the symlink into this repo's working
+tree — no diff, no backup, no git awareness until you notice. That's usually
+fine, but some Omarchy commands write directly to paths this repo stows.
+Confirmed case: `omarchy default terminal <x>` / `omarchy install terminal
+<x>` do `cat > ~/.config/xdg-terminals.list`, so running either again would
+silently overwrite `omarchy/stow/xdg-terminal/.config/xdg-terminals.list` in
+place. If a stowed file ever looks unexpectedly different, `git diff` before
+assuming it's untouched, and `git status` after running Omarchy commands that
+touch config you've stowed here.
+
+A tool built around copy-and-diff instead of symlinks (e.g.
+[chezmoi](https://www.chezmoi.io/)) would sidestep this, but adds real
+tooling/learning overhead for what's currently a small, low-risk surface —
+sticking with Stow for now.
+
 ## Making this your own
 
 This is a personal config, shared as a starting point rather than something
