@@ -1,9 +1,7 @@
 # omarchy-config
 
 Personal config for [Omarchy](https://omarchy.org/) machines, managed with
-[GNU Stow](https://www.gnu.org/software/stow/). Successor to my old macOS
-[DotFiles](https://github.com/CrowderSoup/DotFiles) repo, rebuilt around
-Omarchy's own defaults instead of fighting them.
+[GNU Stow](https://www.gnu.org/software/stow/).
 
 ## Install
 
@@ -55,10 +53,10 @@ back to macOS) without dragging Hyprland config with it.
 ## What's here vs. what Omarchy already gives you
 
 Omarchy's default bash (`/usr/share/omarchy/default/bash/`) already covers a
-lot of what the old zsh setup did by hand: eza aliases, a `zd`/zoxide `cd`
-override, fzf with bat/kitty previews, starship + mise activation, and short
-git/docker aliases (`g`, `gcm`, `d`, `t`, `n`...). This repo only adds what's
-missing on top of that:
+lot of ground on its own: eza aliases, a `zd`/zoxide `cd` override, fzf with
+bat/kitty previews, starship + mise activation, and short git/docker aliases
+(`g`, `gcm`, `d`, `t`, `n`...). This repo only adds what's missing on top of
+that, rather than duplicating it:
 
 - **Shell** — a different set of git shortcuts (`gs`, `gl`, `gb`, `gup`,
   `wip`, `glean`), docker cleanup helpers, `vi`/`vim` → `nvim`, `cat` → `bat`,
@@ -85,3 +83,16 @@ purpose — that's live, per-machine state, not really a "dotfile."
 - An Omarchy install (`packages.sh` and the `omarchy/` layer both assume the
   `omarchy` CLI is present). The `shell/stow/` files themselves are plain
   dotfiles and can be stowed by hand on any Linux/macOS box.
+
+## Making this your own
+
+This is a personal config, shared as a starting point rather than something
+meant to be used unmodified. If you fork it:
+
+- `packages.sh` and the alias files reflect one person's tool choices — trim
+  or swap what you don't want.
+- `omarchy/stow/xdg-terminal` hardcodes WezTerm as the default terminal; drop
+  that package (or point it elsewhere) if you'd rather keep an Omarchy
+  default.
+- `shell/stow/wezterm/.wezterm.lua` pins a specific font/theme — adjust to
+  taste.
