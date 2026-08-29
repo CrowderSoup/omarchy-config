@@ -21,13 +21,18 @@ stow_layer() {
   cd "$layer_dir"
   for pkg in */; do
     pkg="${pkg%/}"
-    # Remove pre-existing symlinks stow doesn't own (e.g. from an old dotfiles setup)
     while IFS= read -r -d '' filepath; do
       rel="${filepath#"$pkg"/}"
       dest="$HOME/$rel"
       if [[ -L "$dest" ]] && ! readlink "$dest" | grep -q "$pkg/"; then
+        # Symlink stow doesn't own (e.g. from an old dotfiles setup)
         echo "  -> removing old symlink $dest (was -> $(readlink "$dest"))"
         rm "$dest"
+      elif [[ -e "$dest" && ! -L "$dest" ]]; then
+        # Real file already there (e.g. Omarchy's shipped default) -- keep it, just move it aside
+        backup="$dest.bak.$(date +%s)"
+        echo "  -> backing up existing $dest -> $backup"
+        mv "$dest" "$backup"
       fi
     done < <(find "$pkg" -type f -print0)
     echo "  -> stow $pkg"
