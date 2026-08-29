@@ -1,0 +1,61 @@
+#!/bin/bash
+set -euo pipefail
+
+REPO="$(cd "$(dirname "$0")" && pwd)"
+
+echo "==> Setting up omarchy-config..."
+
+if ! command -v omarchy &>/dev/null; then
+  echo "ERROR: this repo assumes an Omarchy machine (the 'omarchy' command wasn't found)." >&2
+  echo "The shell/ layer's files are plain dotfiles and can be stowed by hand elsewhere," >&2
+  echo "but packages.sh and the omarchy/ layer need Omarchy." >&2
+  exit 1
+fi
+
+echo "==> Installing packages..."
+bash "$REPO/packages.sh"
+
+stow_layer() {
+  local layer_dir="$1"
+  [[ -d "$layer_dir" ]] || return 0
+  cd "$layer_dir"
+  for pkg in */; do
+    pkg="${pkg%/}"
+    # Remove pre-existing symlinks stow doesn't own (e.g. from an old dotfiles setup)
+    while IFS= read -r -d '' filepath; do
+      rel="${filepath#"$pkg"/}"
+      dest="$HOME/$rel"
+      if [[ -L "$dest" ]] && ! readlink "$dest" | grep -q "$pkg/"; then
+        echo "  -> removing old symlink $dest (was -> $(readlink "$dest"))"
+        rm "$dest"
+      fi
+    done < <(find "$pkg" -type f -print0)
+    echo "  -> stow $pkg"
+    stow -v --target="$HOME" --restow "$pkg"
+  done
+}
+
+echo "==> Stowing shell config..."
+stow_layer "$REPO/shell/stow"
+
+echo "==> Stowing omarchy config..."
+stow_layer "$REPO/omarchy/stow"
+
+# Wire the bash modules into Omarchy's user section of ~/.bashrc, once.
+MARKER="# omarchy-config: load ~/.config/bash/*.bash"
+if ! grep -qF "$MARKER" "$HOME/.bashrc" 2>/dev/null; then
+  echo "==> Hooking bash modules into ~/.bashrc..."
+  {
+    echo ""
+    echo "$MARKER"
+    echo 'for f in "$HOME/.config/bash/"*.bash; do source "$f"; done'
+  } >>"$HOME/.bashrc"
+fi
+
+# Configure git to use delta, if it's installed.
+if command -v delta &>/dev/null && [[ -f "$HOME/.config/git/config-delta" ]]; then
+  git config --global include.path ~/.config/git/config-delta
+  echo "  -> git delta config included"
+fi
+
+echo "==> Done! Open a new shell (or 'source ~/.bashrc') to pick up the changes."
