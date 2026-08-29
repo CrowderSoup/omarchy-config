@@ -10,16 +10,15 @@ if command -v bat &>/dev/null; then
   alias cat="bat --paging=never"
 fi
 
+alias l="ls -la"
+
 # Git (short names that don't collide with Omarchy's g/gcm/gcam/gcad)
-alias gup="git fetch && git merge --ff-only"
-alias gac="git add . && git commit"
-alias gip="git push"
 alias gs="git status"
 alias gl="git log"
 alias gb="git branch"
 alias wip="git add . && git commit -m 'wip' --no-verify && git push"
 
-glean() {
+gclean() {
   git remote prune origin
   git branch --merged | grep -v "\*" | grep -v "develop" | grep -v "main" | grep -v "dev" | xargs -n 1 git branch -d
 }

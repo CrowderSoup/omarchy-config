@@ -58,9 +58,10 @@ bat/kitty previews, starship + mise activation, and short git/docker aliases
 (`g`, `gcm`, `d`, `t`, `n`...). This repo only adds what's missing on top of
 that, rather than duplicating it:
 
-- **Shell** — a different set of git shortcuts (`gs`, `gl`, `gb`, `gup`,
-  `wip`, `glean`), docker cleanup helpers, `vi`/`vim` → `nvim`, `cat` → `bat`,
-  a `GOPATH`/cargo `PATH` addition, and fd-backed `FZF_*` search commands.
+- **Shell** — a different set of git shortcuts (`gs`, `gl`, `gb`, `wip`,
+  `gclean`), docker cleanup helpers, `vi`/`vim` → `nvim`, `cat` → `bat`,
+  `l` → `ls -la`, a `GOPATH`/cargo `PATH` addition, and fd-backed `FZF_*`
+  search commands.
 - **Git** — delta side-by-side diffs (Omarchy's own git defaults already
   cover the aliases/rebase/rerere settings this used to set up by hand).
 - **Prompt** — Omarchy's starship look (bold cyan, arrow prompt) plus
