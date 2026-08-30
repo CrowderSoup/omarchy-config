@@ -1,0 +1,71 @@
+#!/bin/bash
+# omarchy:summary=Group every tiled window on the active workspace into one tabbed group (press again on a grouped window to ungroup)
+
+dispatch() { hyprctl dispatch "$1" >/dev/null 2>&1; }
+focus() { dispatch "hl.dsp.focus({ window = \"address:$1\" })"; }
+grouped_of() { hyprctl clients -j | jq -r --arg a "$1" '[.[] | select(.address == $a) | .grouped[]?]'; }
+is_in() {
+  local needle="$1"
+  shift
+  for x in "$@"; do [ "$x" = "$needle" ] && return 0; done
+  return 1
+}
+
+active=$(hyprctl activewindow -j | jq -r '.address // empty')
+[ -z "$active" ] && exit 0
+
+if [ "$(grouped_of "$active" | jq 'length')" -gt 0 ]; then
+  dispatch "hl.dsp.group.toggle()"
+  exit 0
+fi
+
+ws=$(hyprctl activewindow -j | jq -r '.workspace.id // empty')
+[ -z "$ws" ] && exit 0
+
+mapfile -t addrs < <(hyprctl clients -j | jq -r --argjson ws "$ws" \
+  '.[] | select(.workspace.id == $ws and .mapped == true and .floating == false) | .address')
+
+if [ "${#addrs[@]}" -lt 2 ]; then
+  dispatch "hl.dsp.group.toggle()"
+  exit 0
+fi
+
+anchor="${addrs[0]}"
+
+for _pass in 1 2 3; do
+  mapfile -t anchor_group < <(grouped_of "$anchor" | jq -r '.[]')
+  all_together=1
+  for addr in "${addrs[@]:1}"; do
+    is_in "$addr" "${anchor_group[@]}" "$anchor" || { all_together=0; break; }
+  done
+  [ "$all_together" -eq 1 ] && break
+
+  for addr in "${addrs[@]:1}"; do
+    mapfile -t cur_anchor_group < <(grouped_of "$anchor" | jq -r '.[]')
+    is_in "$addr" "${cur_anchor_group[@]}" "$anchor" && continue
+
+    focus "$addr"
+    for dir in l r u d; do
+      dispatch "hl.dsp.window.move({ into_or_create_group = \"$dir\" })"
+      mapfile -t members < <(grouped_of "$addr" | jq -r '.[]')
+      [ "${#members[@]}" -eq 0 ] && continue
+
+      # Only tiled windows already on this workspace are ever valid merge
+      # partners; anything else (e.g. a window on a neighboring monitor that
+      # a directional search reached) gets ejected back out immediately.
+      foreign=0
+      for m in "${members[@]}"; do
+        [ "$m" = "$addr" ] && continue
+        if ! is_in "$m" "${addrs[@]}"; then
+          foreign=1
+          focus "$m"
+          dispatch "hl.dsp.window.move({ out_of_group = true })"
+        fi
+      done
+      focus "$addr"
+      [ "$foreign" -eq 0 ] && break
+    done
+  done
+done
+
+focus "$anchor"

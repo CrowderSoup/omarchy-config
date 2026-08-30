@@ -5,7 +5,14 @@ Stowed with `--target="$HOME"` just like the shell layer, but only run this
 on a box that has Omarchy installed (`command -v omarchy`).
 
 - `stow/hypr/.config/hypr/bindings.lua` — adds SUPER+SHIFT+CTRL+arrow to move
-  the focused window to an adjacent monitor.
+  the focused window to an adjacent monitor. Also repurposes SUPER+G, ALT+TAB,
+  CTRL+TAB, SUPER+ALT+TAB, and SUPER+CTRL+TAB for tabbed window stacking (see
+  `stow/hypr/.local/bin/omarchy-hyprland-group-workspace` below) — this
+  replaces several Omarchy defaults, including CTRL+TAB, which apps no longer
+  see.
+- `stow/hypr/.local/bin/omarchy-hyprland-group-workspace` — SUPER+G groups
+  every tiled window on the active workspace into one tabbed group, or
+  ungroups if the focused window is already grouped.
 - `stow/hypr/.config/hypr/input.lua` — natural (inverted) scrolling.
 - `stow/xdg-terminal/.config/xdg-terminals.list` — makes WezTerm the default
   for `xdg-terminal-exec`, so SUPER+RETURN and anything else that shells out
