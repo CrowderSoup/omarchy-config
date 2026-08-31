@@ -4,7 +4,7 @@ hl.config({
   input = {
     touchpad = {
       -- Use natural (inverse) scrolling
-      natural_scroll = true,   -- flip to false for traditional
+      natural_scroll = false,   -- flip to false for traditional
     },
   },
 })
