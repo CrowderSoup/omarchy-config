@@ -10,6 +10,7 @@ omarchy pkg add \
   git-delta \
   stow \
   wezterm \
+  foot \
   glow \
   go-yq
 
