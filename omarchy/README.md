@@ -22,14 +22,14 @@ on a box that has Omarchy installed (`command -v omarchy`).
   have written.
 - `stow/screensaver/` — Omarchy's screensaver only launches in Alacritty, Foot,
   Ghostty or Kitty and bails out when the default terminal is anything else
-  (WezTerm here). `.local/bin/omarchy-launch-screensaver-foot` is a copy of
-  `omarchy-launch-screensaver` with Foot hardcoded, and
-  `.config/omarchy/plugins/crowdersoup.idle` is a clone of `omarchy.idle` whose
-  screensaver command calls it. `setup.sh` enables the clone and disables the
-  stock plugin (that state lives in `shell.json`, which isn't stowed). Neither
-  file follows upstream changes: if the screensaver breaks after `omarchy
-  update`, diff them against `/usr/share/omarchy/bin/omarchy-launch-screensaver`
-  and `/usr/share/omarchy/shell/plugins/services/idle/`. Requires `foot`.
+  (WezTerm here). `.local/bin/omarchy-launch-screensaver` is a copy of the stock
+  script with Foot hardcoded. Omarchy appends `~/.local/bin` to PATH, so
+  `.config/uwsm/env` prepends it instead, letting the copy shadow the stock
+  script (takes effect on next login). The stock `omarchy.idle` plugin is left
+  alone on purpose: cloning it hides it from the tray's Stay Awake indicator,
+  which looks the service up by id. The copy doesn't follow upstream changes: if
+  the screensaver breaks after `omarchy update`, diff it against
+  `/usr/share/omarchy/bin/omarchy-launch-screensaver`. Requires `foot`.
 
 These are Omarchy's user-override slots (see `omarchy menu keybindings
 --print` and `/usr/share/omarchy/default/hypr/*.lua` for the full commented

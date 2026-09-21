@@ -47,7 +47,7 @@ back to macOS) without dragging Hyprland config with it.
 └── omarchy/              # Omarchy-only: Hyprland overrides + default terminal
     └── stow/
         ├── hypr/           # bindings.lua, input.lua overrides
-        ├── screensaver/    # Idle plugin clone + launcher so the screensaver runs in Foot
+        ├── screensaver/    # Foot-only screensaver launcher + PATH override
         └── xdg-terminal/   # xdg-terminals.list -> WezTerm
 ```
 

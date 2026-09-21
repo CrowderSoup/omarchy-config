@@ -1,6 +1,7 @@
 #!/bin/bash
 
-# User override of omarchy-launch-screensaver: always runs the screensaver in Foot,
+# User override of omarchy-launch-screensaver (shadows the stock one via ~/.local/bin
+# first on PATH, see ~/.config/uwsm/env): always runs the screensaver in Foot,
 # because the default terminal (WezTerm) is not supported by the stock launcher.
 
 # Exit early if screensaver is already running

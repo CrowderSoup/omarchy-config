@@ -1,0 +1,3 @@
+# Put ~/.local/bin ahead of system binaries so the omarchy-launch-screensaver
+# override there (Foot-only screensaver) shadows the stock one.
+export PATH="$HOME/.local/bin:$PATH"

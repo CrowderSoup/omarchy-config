@@ -67,14 +67,6 @@ stow_layer "$REPO/shell/stow"
 echo "==> Stowing omarchy config..."
 stow_layer "$REPO/omarchy/stow"
 
-# Stowing the idle plugin only drops its files in place; enabling it (and turning
-# off the stock one it replaces) is recorded in shell.json, which isn't stowed.
-if [[ -d "$HOME/.config/omarchy/plugins/crowdersoup.idle" ]]; then
-  echo "==> Enabling crowdersoup.idle (screensaver in Foot)..."
-  omarchy plugin enable crowdersoup.idle || true
-  omarchy plugin disable omarchy.idle || true
-fi
-
 # Wire the bash modules into Omarchy's user section of ~/.bashrc, once.
 MARKER="# omarchy-config: load ~/.config/bash/*.bash"
 if ! grep -qF "$MARKER" "$HOME/.bashrc" 2>/dev/null; then
