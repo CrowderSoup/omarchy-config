@@ -43,8 +43,9 @@ stow_layer() {
         continue
       fi
 
-      if [[ -L "$dest" ]] && ! readlink "$dest" | grep -q "$pkg/"; then
-        # Symlink stow doesn't own (e.g. from an old dotfiles setup)
+      if [[ -L "$dest" ]] && { [[ "$(readlink "$dest")" == /* ]] || ! readlink "$dest" | grep -q "$pkg/"; }; then
+        # Symlink stow doesn't own (e.g. from an old dotfiles setup, or an
+        # absolute link into this repo, which stow refuses to adopt)
         echo "  -> removing old symlink $dest (was -> $(readlink "$dest"))"
         rm "$dest"
       elif [[ -e "$dest" && ! -L "$dest" ]]; then
