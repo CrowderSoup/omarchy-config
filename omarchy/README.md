@@ -20,6 +20,16 @@ on a box that has Omarchy installed (`command -v omarchy`).
   managed by `omarchy default terminal` (that command only knows about
   alacritty/foot/ghostty/kitty) — this repo just writes the file it would
   have written.
+- `stow/screensaver/` — Omarchy's screensaver only launches in Alacritty, Foot,
+  Ghostty or Kitty and bails out when the default terminal is anything else
+  (WezTerm here). `.local/bin/omarchy-launch-screensaver-foot` is a copy of
+  `omarchy-launch-screensaver` with Foot hardcoded, and
+  `.config/omarchy/plugins/crowdersoup.idle` is a clone of `omarchy.idle` whose
+  screensaver command calls it. `setup.sh` enables the clone and disables the
+  stock plugin (that state lives in `shell.json`, which isn't stowed). Neither
+  file follows upstream changes: if the screensaver breaks after `omarchy
+  update`, diff them against `/usr/share/omarchy/bin/omarchy-launch-screensaver`
+  and `/usr/share/omarchy/shell/plugins/services/idle/`. Requires `foot`.
 
 These are Omarchy's user-override slots (see `omarchy menu keybindings
 --print` and `/usr/share/omarchy/default/hypr/*.lua` for the full commented
