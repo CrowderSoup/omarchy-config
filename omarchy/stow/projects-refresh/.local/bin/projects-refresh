@@ -1,0 +1,101 @@
+#!/usr/bin/env bash
+# Refresh the project notes in the Obsidian vault from the repos under
+# ~/Projects. Facts are gathered here with read-only git/gh calls; Claude only
+# gets Read + Edit inside the vault's Projects/ folder, so it can't touch the
+# repos themselves.
+set -euo pipefail
+export PATH="$HOME/.local/share/mise/shims:$HOME/.local/bin:/usr/bin:/bin"
+VAULT="$HOME/Obsidian/Notes"
+ROOT="$HOME/Projects/github.com"
+STATE="$HOME/.local/state/projects-refresh"
+mkdir -p "$STATE"
+FACTS="$STATE/facts.md"
+LOG="$STATE/$(date +%F_%H%M).log"
+
+# gh reads its token from the keyring; if that's unavailable, still refresh
+# the local side and say so in the facts.
+GH=1
+gh auth status >/dev/null 2>&1 || GH=0
+
+fm() { # fm <note> <key>: print a frontmatter value
+	awk -v k="$2" 'NR==1&&/^---/{f=1;next} f&&/^---/{exit} f&&$0~"^"k":"{sub("^"k":[ ]*","");gsub(/"/,"");print;exit}' "$1"
+}
+
+collect() { # collect <note>
+	local note="$1" path repo slug dir
+	path="$(fm "$note" path)"
+	repo="$(fm "$note" repo)"
+	echo "## ${note#"$VAULT"/}"
+	echo "- status: $(fm "$note" status) · last_activity: $(fm "$note" last_activity)"
+	dir="${path/#\~/$HOME}"
+	if [[ -n "$path" && -d "$dir/.git" ]]; then
+		local default branch
+		# refresh remote-tracking refs only (never touches the working tree);
+		# BatchMode so a locked key fails fast instead of hanging the service
+		local fetched="no remote"
+		[[ -n "$(git -C "$dir" remote)" ]] && { GIT_SSH_COMMAND='ssh -o BatchMode=yes -o ConnectTimeout=10' \
+			timeout 60 git -C "$dir" fetch --quiet --prune origin 2>/dev/null && fetched="ok" || fetched="FAILED (facts may be stale)"; }
+		default="$(git -C "$dir" symbolic-ref --short refs/remotes/origin/HEAD 2>/dev/null | sed 's#^origin/##' || true)"
+		[[ -z "$default" ]] && default="$(git -C "$dir" rev-parse --abbrev-ref HEAD)"
+		branch="$(git -C "$dir" branch --show-current)"
+		# compare against the remote's default branch when there is one, since
+		# local default branches are often stale after merging on GitHub
+		local base="$default"
+		git -C "$dir" rev-parse -q --verify "origin/$default" >/dev/null && base="origin/$default"
+		echo "- local: checked out \`$branch\` (default \`$default\`), $(git -C "$dir" rev-list --count HEAD) commits, last commit $(git -C "$dir" log -1 --format=%ad --date=short)"
+		echo "- remote: $(git -C "$dir" remote get-url origin 2>/dev/null || echo NONE)"
+		echo "- fetch: $fetched"
+		echo "- upstream: $(git -C "$dir" rev-list --left-right --count '@{u}...HEAD' 2>/dev/null | awk '{print "behind "$1", ahead "$2" "}' || echo 'no upstream')"
+		echo "- uncommitted:"; git -C "$dir" status --porcelain | head -15 | sed 's/^/    /' || true
+		echo "- local branches merged into $default (prunable): $(git -C "$dir" branch --merged "$base" --format='%(refname:short)' 2>/dev/null | grep -vxF "$default" | wc -l)"
+		echo "- commits on $default in the last 14 days:"
+		git -C "$dir" log "$base" --since='14 days ago' --format='    %ad %s' --date=short | head -25 || true
+		echo "- recent commits on branches NOT merged into $default:"
+		git -C "$dir" log --branches --not "$base" --since='14 days ago' --format='    %ad %s' --date=short | head -10 || true
+	elif [[ -n "$path" && -d "$dir" ]]; then
+		echo "- local: folder exists but is NOT a git repo; contents: $(ls -A "$dir" | tr '\n' ' ')"
+	elif [[ -n "$path" ]]; then
+		echo "- local: $path does not exist"
+	fi
+	if [[ "$repo" == https://github.com/* && $GH == 1 ]]; then
+		slug="${repo#https://github.com/}"
+		echo "- github: last push $(date -d "$(gh repo view "$slug" --json pushedAt -q .pushedAt 2>/dev/null)" +%F 2>/dev/null || echo unknown) (local time)"
+		echo "- open PRs:"; gh pr list -R "$slug" --limit 10 2>/dev/null | sed 's/^/    /' || true
+		echo "- open issues:"; gh issue list -R "$slug" --limit 10 2>/dev/null | sed 's/^/    /' || true
+		if [[ -n "${branch:-}" && "$branch" != "${default:-}" ]]; then
+			echo "- PR for checked-out branch: $(gh pr list -R "$slug" --head "$branch" --state all --json number,state -q '.[0] | "#\(.number) \(.state)"' 2>/dev/null)"
+		fi
+	fi
+	echo
+}
+
+{
+	echo "# Project facts ($(date +%F))"
+	[[ $GH == 0 ]] && echo "> gh was not authenticated; GitHub facts are missing this run."
+	echo
+	known=()
+	while IFS= read -r note; do
+		collect "$note"
+		p="$(fm "$note" path)"; [[ -n "$p" ]] && known+=("${p/#\~/$HOME}")
+	done < <(grep -rlx --include='*.md' 'type: project' "$VAULT/Projects")
+	echo "## Folders under ~/Projects with no project note"
+	for d in "$ROOT"/*/*/; do
+		d="${d%/}"
+		printf '%s\n' "${known[@]}" | grep -qxF "$d" || echo "- ${d/#$HOME/\~}"
+	done
+} >"$FACTS"
+
+# --facts-only: show what Claude would be given, without editing anything
+if [[ "${1:-}" == --facts-only ]]; then
+	cat "$FACTS"
+	exit 0
+fi
+
+cd "$VAULT"
+claude -p "/projects-refresh $FACTS" --permission-prompts none </dev/null \
+	--allowedTools Read Glob Grep \
+	'Edit(~/Obsidian/Notes/Projects/**)' \
+	>"$LOG" 2>&1 || rc=$?
+notify-send -a "Projects refresh" "Project notes refreshed" "$(tail -n 5 "$LOG")" 2>/dev/null || true
+find "$STATE" -name '*.log' -mtime +60 -delete
+exit "${rc:-0}"

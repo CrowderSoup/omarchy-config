@@ -48,6 +48,7 @@ back to macOS) without dragging Hyprland config with it.
     └── stow/
         ├── hypr/           # bindings.lua, input.lua overrides
         ├── screensaver/    # Foot-only screensaver launcher + PATH override
+        ├── projects-refresh/ # weekly Claude refresh of the Obsidian project notes (user timer)
         └── xdg-terminal/   # xdg-terminals.list -> WezTerm
 ```
 

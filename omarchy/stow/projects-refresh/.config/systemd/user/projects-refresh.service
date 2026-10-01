@@ -1,0 +1,8 @@
+[Unit]
+Description=Refresh project notes in the Obsidian vault
+After=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=%h/.local/bin/projects-refresh
+TimeoutStartSec=20min
