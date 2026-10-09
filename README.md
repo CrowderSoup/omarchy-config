@@ -49,6 +49,7 @@ back to macOS) without dragging Hyprland config with it.
         ├── hypr/           # bindings.lua, input.lua overrides
         ├── screensaver/    # Foot-only screensaver launcher + PATH override
         ├── projects-refresh/ # weekly Claude refresh of the Obsidian project notes (user timer)
+        ├── grok-usage/     # Grok chip in the Omarchy agents panel (user timer + path unit)
         └── xdg-terminal/   # xdg-terminals.list -> WezTerm
 ```
 
@@ -77,6 +78,10 @@ that, rather than duplicating it:
   for SUPER+RETURN / `xdg-terminal-exec`. See `omarchy/README.md` for what
   was deliberately left out (monitor layout, app-specific autostarts, bar
   tweaks) because it's too machine-specific to be worth templating.
+- **Grok usage** — a collector that writes Grok Build's weekly allowance and
+  local token stats into the Omarchy agents panel, next to Claude. Omarchy
+  only runs collectors it ships, so this stays a user script plus a 15-minute
+  timer, and a path unit that refreshes it when the panel refreshes Claude.
 
 Runtime versions (`mise use --global ...`) aren't managed by this repo on
 purpose — that's live, per-machine state, not really a "dotfile."

@@ -1,0 +1,10 @@
+[Unit]
+Description=Refresh Grok usage when the agents panel refreshes
+
+[Path]
+PathChanged=%h/.local/state/omarchy/agents/usage/claude.json
+PathChanged=%h/.local/state/omarchy/agents/usage/codex.json
+Unit=omarchy-agent-usage-grok.service
+
+[Install]
+WantedBy=default.target

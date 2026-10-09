@@ -84,11 +84,13 @@ if command -v delta &>/dev/null && [[ -f "$HOME/.config/git/config-delta" ]]; th
   echo "  -> git delta config included"
 fi
 
-# User timers shipped by the omarchy layer (e.g. projects-refresh).
-if [[ -f "$HOME/.config/systemd/user/projects-refresh.timer" ]]; then
-  systemctl --user daemon-reload
-  systemctl --user enable --now projects-refresh.timer
-  echo "  -> projects-refresh.timer enabled"
-fi
+# User timers and path units shipped by the omarchy layer.
+systemctl --user daemon-reload
+for unit in projects-refresh.timer omarchy-agent-usage-grok.timer omarchy-agent-usage-grok.path; do
+  if [[ -f "$HOME/.config/systemd/user/$unit" ]]; then
+    systemctl --user enable --now "$unit"
+    echo "  -> $unit enabled"
+  fi
+done
 
 echo "==> Done! Open a new shell (or 'source ~/.bashrc') to pick up the changes."
