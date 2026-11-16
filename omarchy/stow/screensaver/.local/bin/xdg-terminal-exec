@@ -1,0 +1,15 @@
+#!/bin/bash
+
+# Shim for xdg-terminal-exec (shadows /usr/bin/xdg-terminal-exec via ~/.local/bin,
+# see ~/.config/uwsm/env). Omarchy's screensaver only runs in Alacritty, Foot,
+# Ghostty or Kitty, and the stock omarchy-launch-screensaver bails out when
+# `xdg-terminal-exec --print-id` names anything else (WezTerm here). When that
+# launcher is the caller, answer Foot; every other call passes straight through,
+# so WezTerm stays the default terminal everywhere else.
+
+if [[ $1 == --print-id ]] && tr '\0' ' ' < "/proc/$PPID/cmdline" 2>/dev/null | grep -q 'omarchy-launch-screensaver'; then
+  echo foot.desktop
+  exit 0
+fi
+
+exec /usr/bin/xdg-terminal-exec "$@"

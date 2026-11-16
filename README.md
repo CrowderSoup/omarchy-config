@@ -47,7 +47,7 @@ back to macOS) without dragging Hyprland config with it.
 └── omarchy/              # Omarchy-only: Hyprland overrides + default terminal
     └── stow/
         ├── hypr/           # bindings.lua, input.lua overrides
-        ├── screensaver/    # Foot-only screensaver launcher + PATH override
+        ├── screensaver/    # xdg-terminal-exec shim: screensaver runs in Foot
         ├── projects-refresh/ # weekly Claude refresh of the Obsidian project notes (user timer)
         ├── grok-usage/     # Grok chip in the Omarchy agents panel (user timer + path unit)
         └── xdg-terminal/   # xdg-terminals.list -> WezTerm

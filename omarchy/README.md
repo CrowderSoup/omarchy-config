@@ -21,15 +21,19 @@ on a box that has Omarchy installed (`command -v omarchy`).
   alacritty/foot/ghostty/kitty) — this repo just writes the file it would
   have written.
 - `stow/screensaver/` — Omarchy's screensaver only launches in Alacritty, Foot,
-  Ghostty or Kitty and bails out when the default terminal is anything else
-  (WezTerm here). `.local/bin/omarchy-launch-screensaver` is a copy of the stock
-  script with Foot hardcoded. Omarchy appends `~/.local/bin` to PATH, so
-  `.config/uwsm/env` prepends it instead, letting the copy shadow the stock
-  script (takes effect on next login). The stock `omarchy.idle` plugin is left
-  alone on purpose: cloning it hides it from the tray's Stay Awake indicator,
-  which looks the service up by id. The copy doesn't follow upstream changes: if
-  the screensaver breaks after `omarchy update`, diff it against
-  `/usr/share/omarchy/bin/omarchy-launch-screensaver`. Requires `foot`.
+  Ghostty or Kitty, and the stock `omarchy-launch-screensaver` bails out when
+  `xdg-terminal-exec --print-id` names anything else (WezTerm here).
+  `.local/bin/xdg-terminal-exec` is a shim that answers `foot.desktop` only when
+  its parent is that launcher, and passes every other call through to
+  `/usr/bin/xdg-terminal-exec`. The stock launcher itself runs unmodified, so it
+  keeps up with `omarchy update`. Don't shadow the launcher itself instead: the
+  Omarchy shell's PATH puts `/usr/share/omarchy/bin` first, so a copy in
+  `~/.local/bin` is never reached by the idle timer. `/usr/bin` comes after
+  `~/.local/bin`, which is why shadowing `xdg-terminal-exec` works.
+  `.config/uwsm/env` prepends `~/.local/bin` (Omarchy appends it) to keep it that
+  way. The stock `omarchy.idle` plugin is left alone on purpose: cloning it hides
+  it from the tray's Stay Awake indicator, which looks the service up by id.
+  Requires `foot`.
 
 These are Omarchy's user-override slots (see `omarchy menu keybindings
 --print` and `/usr/share/omarchy/default/hypr/*.lua` for the full commented
